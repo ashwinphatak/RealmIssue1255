@@ -12,25 +12,34 @@ import {
   View
 } from 'react-native';
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' +
-    'Cmd+D or shake for dev menu',
-  android: 'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
+const Realm = require('realm');
 
-export default class App extends Component<{}> {
+export default class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { realm: null };
+  }
+
+  componentWillMount() {
+    Realm.open({
+      schema: [{name: 'Dog', properties: {name: 'string'}}]
+    }).then(realm => {
+      realm.write(() => {
+        realm.create('Dog', {name: 'Rex'});
+      });
+      this.setState({ realm });
+    });
+  }
+
   render() {
+    const info = this.state.realm
+      ? 'Number of dogs in this Realm: ' + this.state.realm.objects('Dog').length
+      : 'Loading...';
+
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit App.js
-        </Text>
-        <Text style={styles.instructions}>
-          {instructions}
+          {info}
         </Text>
       </View>
     );
@@ -48,10 +57,5 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: 'center',
     margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
   },
 });
