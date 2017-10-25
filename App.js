@@ -28,6 +28,8 @@ export default class App extends Component {
         realm.create('Dog', {name: 'Rex'});
       });
       this.setState({ realm });
+    }).catch(reason => {
+      console.log('Realm open failed', reason);
     });
   }
 
